@@ -1,6 +1,5 @@
 'use client';
 
-import Image from 'next/image';
 import { getCastText } from './utils/api';
 import { useState } from 'react';
 import { SiFarcaster } from 'react-icons/si';

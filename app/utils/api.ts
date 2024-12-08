@@ -1,7 +1,5 @@
-import { ChildProcess } from 'child_process';
 import { config } from 'dotenv';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { GiButterToast } from 'react-icons/gi';
 config();
 
 async function findFirstBaseBuildsCast(data: { messages: any[] }) {
@@ -246,12 +244,4 @@ Be especially brutal with obvious cash grabs. If they're just trying to make a q
   const stringe = JSON.parse(contentResponse!);
   console.log(stringe);
   return stringe;
-};
-const fileToGenerativePart = (cast: any) => {
-  return {
-    inlineData: {
-      data: Buffer.from(cast).toString('base64'),
-      mimeType: 'text/plain'
-    }
-  };
 };
