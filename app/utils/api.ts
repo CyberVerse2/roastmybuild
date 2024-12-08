@@ -245,7 +245,7 @@ Be especially brutal with obvious cash grabs. If they're just trying to make a q
     topP: 1.0,
     maxOutputTokens: 8192,
     response_mime_type: 'application/json'
-  };
+  }
   const model = genAI.getGenerativeModel({
     model: 'gemini-1.5-flash',
     generationConfig,
