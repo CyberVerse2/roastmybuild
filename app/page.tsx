@@ -264,18 +264,22 @@ export default function Home() {
             </div>
           ) : (
             <div className="text-center py-12">
-              <div className="flex justify-center space-x-2">
-                <div className="w-3 h-3 rounded-full bg-blue-400 animate-bounce"></div>
-                <div
-                  className="w-3 h-3 rounded-full bg-purple-400 animate-bounce"
-                  style={{ animationDelay: '0.2s' }}
-                ></div>
-                <div
-                  className="w-3 h-3 rounded-full bg-pink-400 animate-bounce"
-                  style={{ animationDelay: '0.4s' }}
-                ></div>
-              </div>
-              <p className="text-slate-400 mt-4">Analyzing your build...</p>
+              {loading && (
+                <div className="flex justify-center space-x-2 hi">
+                  <div className="w-3 h-3 rounded-full bg-blue-400 animate-bounce"></div>
+                  <div
+                    className="w-3 h-3 rounded-full bg-purple-400 animate-bounce"
+                    style={{ animationDelay: '0.2s' }}
+                  ></div>
+                  <div
+                    className="w-3 h-3 rounded-full bg-pink-400 animate-bounce"
+                    style={{ animationDelay: '0.4s' }}
+                  ></div>
+                </div>
+              )}
+              <p className="text-slate-400 mt-4">
+                {loading ? 'Analyzing your build...' : 'Your roast result would show here...'}
+              </p>
             </div>
           )}
         </div>

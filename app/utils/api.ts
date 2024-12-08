@@ -239,7 +239,7 @@ Be especially brutal with obvious cash grabs. If they're just trying to make a q
       }
     ]
   };
-  const genAI = new GoogleGenerativeAI(`AIzaSyDr2E04AR08-6W41-6goFa-CFaxRupIn2c`);
+  const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
   const generationConfig = {
     temperature: 0.95,
     topP: 1.0,
