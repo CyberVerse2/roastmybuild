@@ -2,10 +2,40 @@ import { config } from 'dotenv';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 config();
 
-async function findFirstBaseBuildsCast(data: { messages: any[] }) {
+interface CastData {
+  type: string;
+  castAddBody: {
+    parentUrl: string | string[];
+    embeds: any[];
+    text: string;
+    mentions: any[];
+  };
+  timestamp: string;
+}
+
+interface CastMessage {
+  data: CastData;
+}
+
+interface Cast {
+  messages: CastMessage[];
+}
+
+interface Embed {
+  url: string;
+  base64Image?: string;
+}
+interface FirstBuildCast {
+  timestamp: string;
+  text: string;
+  embeds: Embed[];
+  mentions: any[];
+}
+
+async function findFirstBaseBuildsCast(data: Cast): Promise<FirstBuildCast | null> {
   // Step 1: Filter for casts related to /base-builds channel
   const baseBuildsCast = data.messages.find(
-    (message: { data: { type: string; castAddBody: { parentUrl: string | string[] } } }) =>
+    (message: CastMessage) =>
       message.data.type === 'MESSAGE_TYPE_CAST_ADD' &&
       message.data.castAddBody.parentUrl &&
       message.data.castAddBody.parentUrl.includes('/base-builds')
@@ -15,7 +45,7 @@ async function findFirstBaseBuildsCast(data: { messages: any[] }) {
   if (!baseBuildsCast) return null;
 
   const processedEmbeds = await Promise.all(
-    (baseBuildsCast.data.castAddBody.embeds || []).map(async (embed: any) => {
+    (baseBuildsCast.data.castAddBody.embeds || []).map(async (embed: Embed) => {
       if (
         embed.url &&
         (embed.url.endsWith('.png') ||
@@ -45,7 +75,7 @@ async function findFirstBaseBuildsCast(data: { messages: any[] }) {
   };
 }
 
-export async function getUserFID(username: string) {
+export async function getUserFID(username: string): Promise<string> {
   const options = { method: 'GET' };
 
   return await fetch(`https://hub.pinata.cloud/v1/userNameProofByName?name=${username}`, options)
@@ -54,7 +84,7 @@ export async function getUserFID(username: string) {
     .catch((err) => console.error(err));
 }
 
-export const getCastText = async (url: string) => {
+export const getCastText = async (url: string): Promise<string> => {
   // Validate URL format
   if (!url.startsWith('https://warpcast.com/')) {
     throw new Error('Invalid URL: Must be a Warpcast URL');
@@ -79,7 +109,7 @@ export const getCastText = async (url: string) => {
   const roast = await getRoast(buildCast!);
   return roast;
 };
-export const getRoast = async (cast: any) => {
+export const getRoast = async (cast: FirstBuildCast): Promise<string> => {
   const systemInstruction = {
     parts: [
       {
@@ -224,10 +254,16 @@ Be especially brutal with obvious cash grabs. If they're just trying to make a q
       parts: systemInstruction.parts
     }
   });
-  const promptParts: any = [{ text: `Here is the build submission to evaluate:\n${cast.text}${cast.embeds && cast.embeds.length > 0 ? '\n(attached with images as proof)' : ''}` }];
+  const promptParts: any = [
+    {
+      text: `Here is the build submission to evaluate:\n${cast.text}${
+        cast.embeds && cast.embeds.length > 0 ? '\n(attached with images as proof)' : ''
+      }`
+    }
+  ];
 
   if (cast.embeds && cast.embeds.length > 0) {
-    cast.embeds.forEach((embed: any) => {
+    cast.embeds.forEach((embed: Embed) => {
       if (embed.base64Image) {
         promptParts.push({
           inlineData: {
@@ -238,7 +274,7 @@ Be especially brutal with obvious cash grabs. If they're just trying to make a q
       }
     });
   }
-  console.log(promptParts)
+  console.log(promptParts);
   const result = await model.generateContent(promptParts);
   const contentResponse = result.response.candidates![0].content.parts[0].text;
   const stringe = JSON.parse(contentResponse!);

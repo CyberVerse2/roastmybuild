@@ -1,11 +1,22 @@
 'use client';
 
 import { getCastText } from './utils/api';
-import { useState } from 'react';
+import { SetStateAction, useState } from 'react';
 import { SiFarcaster } from 'react-icons/si';
 
+interface RoastResult {
+  build_evaluation: {
+    title: string;
+    cash_grab_assessment: boolean;
+    criteria_breakdown: {
+      [key: string]: number;
+    };
+    detailed_feedback: string;
+  };
+}
+
 export default function Home() {
-  const [roastResult, setRoastResult] = useState<any>(null);
+  const [roastResult, setRoastResult] = useState<RoastResult | null>(null);
   const [loading, setLoading] = useState(false);
   const shareToFarcaster = () => {
     const content =
@@ -19,7 +30,7 @@ export default function Home() {
   const handleRoast = async (url: string) => {
     try {
       console.log(url);
-      const result = await getCastText(url);
+      const result = (await getCastText(url)) as unknown as SetStateAction<RoastResult | null>;
       setRoastResult(result);
     } catch (error) {
       console.error('Error getting cast:', error);
@@ -236,7 +247,7 @@ export default function Home() {
                   >
                     <div className="flex items-center gap-2">
                       <span>
-                        Share  <SiFarcaster className="w-5 h-5 ml-1 inline" />
+                        Share <SiFarcaster className="w-5 h-5 ml-1 inline" />
                       </span>
                     </div>
                   </button>
