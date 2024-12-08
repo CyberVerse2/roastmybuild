@@ -1,14 +1,14 @@
 import { config } from 'dotenv';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenerativeAI, Part } from '@google/generative-ai';
 config();
 
 interface CastData {
   type: string;
   castAddBody: {
     parentUrl: string | string[];
-    embeds: any[];
+    embeds: Embed[];
     text: string;
-    mentions: any[];
+    mentions: string[];
   };
   timestamp: string;
 }
@@ -29,7 +29,7 @@ interface FirstBuildCast {
   timestamp: string;
   text: string;
   embeds: Embed[];
-  mentions: any[];
+  mentions: string[];
 }
 
 async function findFirstBaseBuildsCast(data: Cast): Promise<FirstBuildCast | null> {
@@ -104,7 +104,7 @@ export const getCastText = async (url: string): Promise<string> => {
   ).then((response) => response.json());
   console.log(recentCastData);
 
-  const buildCast = await findFirstBaseBuildsCast(recentCastData as any);
+  const buildCast = await findFirstBaseBuildsCast(recentCastData as Cast);
 
   const roast = await getRoast(buildCast!);
   return roast;
@@ -254,7 +254,7 @@ Be especially brutal with obvious cash grabs. If they're just trying to make a q
       parts: systemInstruction.parts
     }
   });
-  const promptParts: any = [
+  const promptParts: Array<string | Part> = [
     {
       text: `Here is the build submission to evaluate:\n${cast.text}${
         cast.embeds && cast.embeds.length > 0 ? '\n(attached with images as proof)' : ''
