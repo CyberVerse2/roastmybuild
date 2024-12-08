@@ -20,7 +20,7 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const shareToFarcaster = () => {
     const content =
-      'Just roasted my base build for the week here, you can roast yours over here roastmybuild.vercel.app';
+      'Just roasted my base build for the week here, you can roast yours over here https://roastmybuild.vercel.app';
     console.log('Sharing to Farcaster:', content);
     // Implement actual sharing logic here
     // For example, you might open a new window with a Farcaster sharing URL
