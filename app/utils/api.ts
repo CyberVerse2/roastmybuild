@@ -155,6 +155,7 @@ Example roast: "Ah yes, nothing says 'blockchain innovation' like an AI-generate
   "build_evaluation": {
     "title": "[Title of Build]",
     "total_score": "[Numerical score]",
+    "is_technical_build": "[Flag: true/false]"
     "criteria_breakdown": {
           "base_integration": 0,
           "technical_execution": 0,

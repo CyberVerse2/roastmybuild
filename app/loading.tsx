@@ -5,18 +5,18 @@ export default function Loading() {
       <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/10 to-purple-500/10"></div>
 
       <div className="relative">
-        {/* Outer spinning ring */}
-        <div className="w-24 h-24 rounded-full border-4 border-blue-400/20 border-t-blue-400 animate-spin"></div>
+        {/* Modernized spinning ring with a more vibrant color scheme */}
+        <div className="w-32 h-32 rounded-full border-4 border-blue-500/20 border-t-blue-500 animate-spin-fast"></div>
 
-        {/* Inner spinning ring (opposite direction) */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 rounded-full border-4 border-purple-400/20 border-b-purple-400 animate-[spin_0.6s_linear_infinite_reverse]"></div>
+        {/* Inner spinning ring with a modern twist */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 rounded-full border-4 border-purple-500/20 border-b-purple-500 animate-[spin_0.6s_linear_infinite_reverse]"></div>
 
-        {/* Center pulsing dot */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-blue-400 rounded-full animate-pulse"></div>
+        {/* Center pulsing dot with a modern look */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6 bg-blue-500 rounded-full animate-pulse-fast"></div>
       </div>
 
-      {/* Loading text with gradient */}
-      <div className="mt-8 text-xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-blue-400 bg-[length:200%_auto] animate-[gradient_2s_linear_infinite] bg-clip-text text-transparent">
+      {/* Loading text with a modern gradient effect */}
+      <div className="mt-8 text-xl font-bold bg-gradient-to-r from-blue-500 via-purple-500 to-blue-500 bg-[length:200%_auto] animate-[gradient_2s_linear_infinite] bg-clip-text text-transparent">
         Loading...
       </div>
     </div>
