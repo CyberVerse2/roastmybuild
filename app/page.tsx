@@ -1,101 +1,169 @@
-import Image from "next/image";
+'use client';
+
+import Image from 'next/image';
+import { getCastText } from './utils/api';
+import { useState } from 'react';
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [roastResult, setRoastResult] = useState<any>(null);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  const handleRoast = async (url: string) => {
+    try {
+      console.log(url)
+      const result = await getCastText(url);
+      setRoastResult(result);
+    } catch (error) {
+      console.error('Error getting cast:', error);
+      setRoastResult(null);
+    }
+  };
+
+  return (
+    <div className="flex flex-col items-center min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-4 sm:p-8 gap-6 sm:gap-12 relative overflow-hidden">
+      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMSIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjAzKSIvPjwvc3ZnPg==')] opacity-50"></div>
+      <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/10 to-purple-500/10"></div>
+
+      <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-blue-400 relative text-center">
+        Roast My Build
+      </h1>
+
+      <div className="w-full max-w-2xl px-4 sm:px-0 relative group">
+        <input
+          type="text"
+          id="castUrl"
+          placeholder="Paste your warpcast cast link here"
+          className="w-full p-4 sm:p-6 bg-slate-900/80 backdrop-blur-sm border-2 border-slate-700 rounded-2xl shadow-lg focus:outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-900 transition-all text-base sm:text-lg placeholder:text-slate-500 text-slate-200"
+        />
+        <button
+          onClick={() => {
+            const input = document.getElementById('castUrl') as HTMLInputElement;
+            if (input.value) {
+              const button = document.querySelector('button');
+              button?.setAttribute('disabled', 'true');
+              button?.classList.add('opacity-70');
+              handleRoast(input.value).finally(() => {
+                button?.removeAttribute('disabled');
+                button?.classList.remove('opacity-70');
+              });
+            }
+          }}
+          className="absolute right-6 sm:right-4 top-1/2 -translate-y-1/2 bg-blue-600 hover:bg-blue-700 text-white px-4 sm:px-6 py-2 rounded-xl transition-all text-sm sm:text-base disabled:cursor-not-allowed"
+        >
+          <div className="flex items-center gap-2">
+            <span>Roast</span>
+            {/* Only show loading spinner when button is disabled */}
+            {document.querySelector('button')?.hasAttribute('disabled') && (
+              <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+            )}
+          </div>
+        </button>
+      </div>
+
+      <div className="w-full max-w-4xl bg-slate-900/90 backdrop-blur-lg rounded-3xl p-6 sm:p-10 shadow-2xl border border-slate-800/50 relative mx-4 sm:mx-0 hover:border-slate-700/50 transition-all duration-300">
+        <h2 className="text-2xl sm:text-3xl font-bold text-slate-100 mb-8 flex items-center gap-3">
+          <div className="flex space-x-2">
+            <span className="w-3 h-3 rounded-full bg-blue-400 animate-pulse"></span>
+            <span className="w-3 h-3 rounded-full bg-purple-400 animate-pulse delay-75"></span>
+            <span className="w-3 h-3 rounded-full bg-pink-400 animate-pulse delay-150"></span>
+          </div>
+          Roast Analysis
+        </h2>
+        
+        <div className="text-slate-300 text-base sm:text-lg">
+          {roastResult ? (
+            <div className="space-y-8 animate-fade-in">
+              <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-2xl p-6 animate-slide-up">
+                <h3 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">
+                  {roastResult.build_evaluation.title}
+                </h3>
+              </div>
+
+              <div className="bg-gradient-to-br from-slate-800/50 to-slate-800/30 rounded-2xl p-6 border border-slate-700/30 shadow-xl backdrop-blur-sm animate-slide-up" style={{animationDelay: '100ms'}}>
+                <div className={`flex items-center justify-between ${roastResult.build_evaluation.cash_grab_assessment ? 'bg-red-500/10' : 'bg-green-500/10'} rounded-xl p-4 border ${roastResult.build_evaluation.cash_grab_assessment ? 'border-red-500/20' : 'border-green-500/20'}`}>
+                  <div className="flex items-center gap-4">
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center ${roastResult.build_evaluation.cash_grab_assessment ? 'bg-red-500/20' : 'bg-green-500/20'}`}>
+                      {roastResult.build_evaluation.cash_grab_assessment ? 
+                        <span className="text-2xl animate-pulse">⚠️</span> : 
+                        <span className="text-2xl animate-bounce">💎</span>
+                      }
+                    </div>
+                    <div>
+                      <h4 className="text-lg font-semibold text-slate-100">Project Assessment</h4>
+                      <p className={`text-lg font-medium ${roastResult.build_evaluation.cash_grab_assessment ? 'text-red-400' : 'text-green-400'}`}>
+                        {roastResult.build_evaluation.cash_grab_assessment ? 'Potential Cash Grab Detected' : 'Verified Legitimate Build'}
+                      </p>
+                    </div>
+                  </div>
+                  <div className={`text-3xl ${roastResult.build_evaluation.cash_grab_assessment ? 'animate-pulse' : 'animate-bounce'}`}>
+                    {roastResult.build_evaluation.cash_grab_assessment ? '🚨' : '✅'}
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-slate-800/50 rounded-2xl p-6 hover:bg-slate-800/60 transition-all duration-300 border border-slate-700/30 shadow-lg animate-slide-up" style={{animationDelay: '200ms'}}>
+                <h4 className="text-lg font-semibold text-slate-100 mb-6 flex items-center gap-2">
+                  <svg className="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                  Scoring Breakdown
+                </h4>
+                <div className="space-y-5">
+                  {Object.entries(roastResult.build_evaluation.criteria_breakdown).map(([key, value], index) => (
+                    <div key={key} className="group animate-slide-right" style={{animationDelay: `${300 + index * 100}ms`}}>
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-sm font-medium text-slate-300 capitalize">
+                          {key.split('_').join(' ')}
+                        </span>
+                        <span className={`text-sm font-semibold ${key === 'total_score' ? 'text-purple-400' : 'text-blue-400'}`}>
+                          {key === 'total_score' ? `${value}/25` : `${value}/5`}
+                        </span>
+                      </div>
+                      <div className="w-full bg-slate-700/30 rounded-full h-2.5 overflow-hidden">
+                        <div 
+                          className={`h-full rounded-full transition-all duration-500 ${
+                            key === 'total_score' 
+                              ? 'bg-gradient-to-r from-purple-500 to-pink-500 group-hover:from-purple-600 group-hover:to-pink-600' 
+                              : 'bg-gradient-to-r from-blue-400 to-purple-400 group-hover:from-blue-500 group-hover:to-purple-500'
+                          }`}
+                          style={{ 
+                            width: `${key === 'total_score' ? (Number(value) / 25) * 100 : (Number(value) / 5) * 100}%`,
+                            animation: 'grow 1s ease-out forwards',
+                            animationDelay: `${400 + index * 100}ms`
+                          }}
+                        >
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="bg-slate-800/50 rounded-2xl p-6 hover:bg-slate-800/60 transition-all duration-300 border border-slate-700/30 shadow-lg animate-slide-up" style={{animationDelay: '800ms'}}>
+                <h4 className="text-lg font-semibold text-slate-100 mb-4 flex items-center gap-2">
+                  <svg className="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  Detailed Feedback
+                </h4>
+                <div className="prose prose-invert max-w-none">
+                  <p className="text-slate-300 leading-relaxed whitespace-pre-line animate-fade-in" style={{animationDelay: '900ms'}}>
+                    {roastResult.build_evaluation.detailed_feedback}
+                  </p>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <div className="flex justify-center space-x-2">
+                <div className="w-3 h-3 rounded-full bg-blue-400 animate-bounce"></div>
+                <div className="w-3 h-3 rounded-full bg-purple-400 animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                <div className="w-3 h-3 rounded-full bg-pink-400 animate-bounce" style={{animationDelay: '0.4s'}}></div>
+              </div>
+              <p className="text-slate-400 mt-4">Analyzing your build...</p>
+            </div>
+          )}
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      </div>
     </div>
   );
 }
