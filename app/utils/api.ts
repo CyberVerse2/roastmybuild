@@ -1,6 +1,5 @@
-import { config } from 'dotenv';
+'use server';
 import { GoogleGenerativeAI, Part } from '@google/generative-ai';
-config();
 
 interface CastData {
   type: string;
@@ -99,7 +98,7 @@ export const getCastText = async (url: string): Promise<string> => {
   }
   const options = { method: 'GET', headers: { Authorization: `Bearer ${process.env.PINATA_JWT}` } };
   const recentCastData = await fetch(
-    `https://hub.pinata.cloud/v1/castsByFid?fid=${fid}&pageSize=40&reverse=true`,
+    `https://hub.pinata.cloud/v1/castsByFid?fid=${fid}&pageSize=200&reverse=true`,
     options
   ).then((response) => response.json());
   console.log(recentCastData);
@@ -239,7 +238,8 @@ Be especially brutal with obvious cash grabs. If they're just trying to make a q
       }
     ]
   };
-  const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+  const apiKey = process.env.GEMINI_API_KEY!;
+  const genAI = new GoogleGenerativeAI(apiKey);
   const generationConfig = {
     temperature: 0.95,
     topP: 1.0,
@@ -277,7 +277,6 @@ Be especially brutal with obvious cash grabs. If they're just trying to make a q
   console.log(promptParts);
   const result = await model.generateContent(promptParts);
   const contentResponse = result.response.candidates![0].content.parts[0].text;
-  const stringe = JSON.parse(contentResponse!);
-  console.log(stringe);
-  return stringe;
+
+  return JSON.parse(contentResponse!);
 };
