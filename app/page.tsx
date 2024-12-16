@@ -20,24 +20,29 @@ export default function Home() {
   const [roastResult, setRoastResult] = useState<RoastResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [isDownloaded, setIsDownloaded] = useState(false)
+  console.log(isDownloaded)
   const resultRef = useRef<HTMLDivElement>(null);
 
   const downloadAsImage = async () => {
     if (resultRef.current) {
+      setIsDownloaded(true);
+      // Wait for state update and re-render
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
       try {
         const dataUrl = await toPng(resultRef.current, {
           quality: 1.0,
-          backgroundColor: '#0f172a', // matching the dark background
-          style: {
-            borderRadius: '0' // Remove border radius for better image capture
-          }
+          pixelRatio: 2,
         });
         const link = document.createElement('a');
-        link.download = 'base-roast-result.png';
+        link.download = 'Base-Roast-Result.png';
         link.href = dataUrl;
         link.click();
       } catch (err) {
         console.error('Error generating image:', err);
+      } finally {
+        // Reset state after capture
+        setTimeout(() => setIsDownloaded(false), 100);
       }
     }
   };
@@ -80,7 +85,6 @@ export default function Home() {
         />
         <button
           onClick={() => {
-            setIsDownloaded(true)
             const input = document.getElementById('castUrl') as HTMLInputElement;
             if (input.value) {
               const button = document.querySelector('button');
@@ -236,7 +240,7 @@ export default function Home() {
                             </div>
                           </div>
                         </div>
-                      <div className={`${isDownloaded ? '': 'hidden'} text-center text-sm text-slate-400 py-3 border-t border-slate-700/50`}>
+                      <div className={`${isDownloaded ?'block': 'hidden'} text-center text-sm text-slate-400 py-3 border-t border-slate-700/50`}>
                         Check yours at roastmybuild.vercel.app
                       </div>
                       </div>
