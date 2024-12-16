@@ -1,8 +1,9 @@
 'use client';
 
 import { getCastText } from './utils/api';
-import { SetStateAction, useState } from 'react';
+import { SetStateAction, useState, useRef } from 'react';
 import { SiFarcaster } from 'react-icons/si';
+import { toPng } from 'html-to-image';
 
 interface RoastResult {
   build_evaluation: {
@@ -18,7 +19,28 @@ interface RoastResult {
 export default function Home() {
   const [roastResult, setRoastResult] = useState<RoastResult | null>(null);
   const [loading, setLoading] = useState(false);
-  const [total, setTotal] = useState(0);
+  const resultRef = useRef<HTMLDivElement>(null);
+
+  const downloadAsImage = async () => {
+    if (resultRef.current) {
+      try {
+        const dataUrl = await toPng(resultRef.current, {
+          quality: 1.0,
+          backgroundColor: '#0f172a', // matching the dark background
+          style: {
+            borderRadius: '0' // Remove border radius for better image capture
+          }
+        });
+        const link = document.createElement('a');
+        link.download = 'base-roast-result.png';
+        link.href = dataUrl;
+        link.click();
+      } catch (err) {
+        console.error('Error generating image:', err);
+      }
+    }
+  };
+
   const shareToFarcaster = () => {
     const content =
       'Just roasted my base build for the week here, you can roast yours over here https://roastmybuild.vercel.app';
@@ -33,10 +55,6 @@ export default function Home() {
       console.log(url);
       const result = (await getCastText(url)) as unknown as SetStateAction<RoastResult | null>;
       setRoastResult(result);
-      // Update total when we get a new result
-      if (result && 'build_evaluation' in result) {
-        setTotal(prev => prev + (result.build_evaluation.cash_grab_assessment ? 1 : 0));
-      }
     } catch (error) {
       console.error('Error getting cast:', error);
       setRoastResult(null);
@@ -86,7 +104,7 @@ export default function Home() {
         </button>
       </div>
 
-      <div className="w-full max-w-4xl bg-slate-900/90 backdrop-blur-lg rounded-3xl p-6 sm:p-10 shadow-2xl border border-slate-800/50 relative mx-4 sm:mx-0 hover:border-slate-700/50 transition-all duration-300">
+      <div className="w-full max-w-4xl bg-slate-900/90 backdrop-blur-lg rounded-3xl sm:p-10 shadow-2xl border border-slate-800/50 relative hover:border-slate-700/50 transition-all duration-300">
         <h2 className="text-2xl sm:text-3xl font-bold text-slate-100 mb-8 flex items-center gap-3">
           <div className="flex space-x-2">
             <span className="w-3 h-3 rounded-full bg-blue-400 animate-pulse"></span>
@@ -98,179 +116,146 @@ export default function Home() {
 
         <div className="text-slate-300 text-base sm:text-lg">
           {roastResult ? (
-            <div className="space-y-8 animate-fade-in">
-              <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-2xl p-6 animate-slide-up">
-                <h3 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">
-                  {roastResult.build_evaluation.title}
-                </h3>
-              </div>
-
-              <div
-                className="bg-gradient-to-br from-slate-800/50 to-slate-800/30 rounded-2xl p-6 border border-slate-700/30 shadow-xl backdrop-blur-sm animate-slide-up"
-                style={{ animationDelay: '100ms' }}
-              >
-                <div
-                  className={`flex items-center justify-between ${
-                    roastResult.build_evaluation.cash_grab_assessment
-                      ? 'bg-red-500/10'
-                      : 'bg-green-500/10'
-                  } rounded-xl p-4 border ${
-                    roastResult.build_evaluation.cash_grab_assessment
-                      ? 'border-red-500/20'
-                      : 'border-green-500/20'
-                  }`}
-                >
-                  <div className="flex items-center gap-4">
-                    <div
-                      className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                        roastResult.build_evaluation.cash_grab_assessment
-                          ? 'bg-red-500/20'
-                          : 'bg-green-500/20'
-                      }`}
-                    >
-                      {roastResult.build_evaluation.cash_grab_assessment ? (
-                        <span className="text-2xl animate-pulse">⚠️</span>
-                      ) : (
-                        <span className="text-2xl animate-bounce">💎</span>
-                      )}
-                    </div>
-                    <div>
-                      <h4 className="text-lg font-semibold text-slate-100">Project Assessment</h4>
-                      <p
-                        className={`text-lg font-medium ${
-                          roastResult.build_evaluation.cash_grab_assessment
-                            ? 'text-red-400'
-                            : 'text-green-400'
-                        }`}
-                      >
-                        {roastResult.build_evaluation.cash_grab_assessment
-                          ? 'Potential Cash Grab Detected'
-                          : 'Verified Legitimate Build'}
-                      </p>
-                    </div>
-                  </div>
-                  <div
-                    className={`text-3xl ${
-                      roastResult.build_evaluation.cash_grab_assessment
-                        ? 'animate-pulse'
-                        : 'animate-bounce'
-                    }`}
-                  >
-                    {roastResult.build_evaluation.cash_grab_assessment ? '🚨' : '✅'}
-                  </div>
-                </div>
-              </div>
-
-              <div
-                className="bg-slate-800/50 rounded-2xl p-6 hover:bg-slate-800/60 transition-all duration-300 border border-slate-700/30 shadow-lg animate-slide-up"
-                style={{ animationDelay: '200ms' }}
-              >
-                <h4 className="text-lg font-semibold text-slate-100 mb-6 flex items-center gap-2">
-                  <svg
-                    className="w-5 h-5 text-blue-400"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                    />
-                  </svg>
-                  Scoring Breakdown
-                </h4>
-                <div className="space-y-5">
-                  {Object.entries(roastResult.build_evaluation.criteria_breakdown).map(
-                    ([key, value], index) => (
-                      <div
-                        key={key}
-                        className="group animate-slide-right"
-                        style={{ animationDelay: `${300 + index * 100}ms` }}
-                      >
-                        <div className="flex justify-between items-center mb-2">
-                          <span className="text-sm font-medium text-slate-300 capitalize">
-                            {key.split('_').join(' ')}
-                          </span>
-                          <span
-                            className={`text-sm font-semibold ${
-                              key === 'total_score' ? 'text-purple-400' : 'text-blue-400'
-                            }`}
-                          >
-                            {key === 'total_score'
-                              ? `${Object.entries(roastResult.build_evaluation.criteria_breakdown)
-                                  .reduce((sum, [k, v]) => (k !== 'total_score' ? sum + Number(v) : sum), 0)}/25`
-                              : `${value}/5`}
-                          </span>
-                        </div>
-                        <div className="w-full bg-slate-700/30 rounded-full h-2.5 overflow-hidden">
-                          <div
-                            className={`h-full rounded-full transition-all duration-500 ${
-                              key === 'total_score'
-                                ? 'bg-gradient-to-r from-purple-500 to-pink-500 group-hover:from-purple-600 group-hover:to-pink-600'
-                                : 'bg-gradient-to-r from-blue-400 to-purple-400 group-hover:from-blue-500 group-hover:to-purple-500'
-                            }`}
-                            style={{
-                              width: `${
-                                key === 'total_score'
-                                  ? (Object.entries(roastResult.build_evaluation.criteria_breakdown)
-                                      .reduce((sum, [k, v]) => (k !== 'total_score' ? sum + Number(v) : sum), 0) / 25) * 100
-                                  : (Number(value) / 5) * 100
-                              }%`,
-                              animation: 'grow 1s ease-out forwards',
-                              animationDelay: `${400 + index * 100}ms`
-                            }}
-                          ></div>
-                        </div>
-                      </div>
-                    )
-                  )}
-                </div>
-              </div>
-
-              <div
-                className="bg-slate-800/50 rounded-2xl p-6 hover:bg-slate-800/60 transition-all duration-300 border border-slate-700/30 shadow-lg animate-slide-up"
-                style={{ animationDelay: '800ms' }}
-              >
-                <h4 className="text-lg font-semibold text-slate-100 mb-4 flex items-center gap-2">
-                  <svg
-                    className="w-5 h-5 text-purple-400"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                    />
-                  </svg>
-                  Detailed Feedback
-                </h4>
-                <div className="absolute right-6 sm:right-4 top-4">
+            <>
+              <div className="">
+                <div className="flex flex-col sm:flex-row justify-center gap-2 mb-4">
                   <button
-                    onClick={() => shareToFarcaster()}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 sm:px-6 py-2 rounded-xl transition-all text-sm sm:text-base disabled:cursor-not-allowed"
+                    onClick={downloadAsImage}
+                    className="w-full sm:w-auto bg-purple-600 hover:bg-purple-700 text-white px-6 py-2.5 rounded-xl transition-all text-sm font-medium flex items-center justify-center gap-2"
                   >
-                    <div className="flex items-center gap-2">
-                      <span>
-                        Share <SiFarcaster className="w-5 h-5 ml-1 inline" />
-                      </span>
-                    </div>
+                    Download Image
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                    </svg>
+                  </button>
+                  <button
+                    onClick={shareToFarcaster}
+                    className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl transition-all text-sm font-medium flex items-center justify-center gap-2"
+                  >
+                    Share
+                    <SiFarcaster className="w-5 h-5" />
                   </button>
                 </div>
-                <div className="prose prose-invert max-w-none">
-                  <p
-                    className="text-slate-300 leading-relaxed whitespace-pre-line animate-fade-in"
-                    style={{ animationDelay: '900ms' }}
-                  >
-                    {roastResult.build_evaluation.detailed_feedback}
-                  </p>
+                <div className="flex flex-col flex-grow">
+                  <div className="flex justify-center mb-6 w-full" style={{ width: '100%' }}>
+                    <div 
+                      ref={resultRef} 
+                      className="w-full min-w-[320px] max-w-[600px] space-y-6 animate-fade-in rounded-3xl overflow-hidden"
+                      style={{
+                        background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+                      }}
+                    >
+                      <div className="relative">
+                        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-purple-500/5 to-pink-500/10 pointer-events-none" />
+                        <div className="p-8 relative">
+                          <h3 className="text-2xl sm:text-3xl font-bold text-blue-400 mb-6 sm:mb-8">
+                            {roastResult.build_evaluation.title}
+                          </h3>
+
+                          <div className="bg-[#1e293b]/80 backdrop-blur-sm rounded-2xl p-4 sm:p-6 mb-6 sm:mb-8">
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                              <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                                roastResult.build_evaluation.cash_grab_assessment
+                                  ? 'bg-red-500/20'
+                                  : 'bg-emerald-500/20'
+                              }`}>
+                                {roastResult.build_evaluation.cash_grab_assessment ? (
+                                  <span className="text-2xl">⚠️</span>
+                                ) : (
+                                  <span className="text-2xl">✅</span>
+                                )}
+                              </div>
+                              <div>
+                                <h4 className="text-base sm:text-lg font-semibold text-slate-100">Project Assessment</h4>
+                                <p className={`text-base sm:text-lg font-medium ${
+                                  roastResult.build_evaluation.cash_grab_assessment
+                                    ? 'text-red-400'
+                                    : 'text-emerald-400'
+                                }`}>
+                                  {roastResult.build_evaluation.cash_grab_assessment
+                                    ? 'Potential Cash Grab Detected'
+                                    : 'Verified Legitimate Build'}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="space-y-6">
+                            <h4 className="text-base sm:text-lg font-semibold text-slate-100 flex items-center gap-2">
+                              <svg className="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                              </svg>
+                              Scoring Breakdown
+                            </h4>
+                            <div className="space-y-4">
+                              {Object.entries(roastResult.build_evaluation.criteria_breakdown).map(
+                                ([key, value], index) => (
+                                  <div
+                                    key={key}
+                                    className="group"
+                                  >
+                                    <div className="flex justify-between items-center mb-2">
+                                      <span className="text-xs sm:text-sm font-medium text-slate-300 capitalize">
+                                        {key.split('_').join(' ')}
+                                      </span>
+                                      <span className={`text-xs sm:text-sm font-semibold ${
+                                        key === 'total_score' ? 'text-purple-400' : 'text-blue-400'
+                                      }`}>
+                                        {key === 'total_score' 
+                                          ? `${Object.entries(roastResult.build_evaluation.criteria_breakdown)
+                                              .reduce((sum, [k, v]) => 
+                                                k !== 'total_score' ? sum + Number(v) : sum
+                                              , 0)}/25` 
+                                          : `${value}/5`}
+                                      </span>
+                                    </div>
+                                    <div className="w-full bg-slate-700/30 rounded-full h-2 overflow-hidden">
+                                      <div
+                                        className={`h-full rounded-full transition-all duration-500 ${
+                                          key === 'total_score'
+                                            ? 'bg-gradient-to-r from-purple-500 to-pink-500'
+                                            : 'bg-gradient-to-r from-blue-400 to-purple-400'
+                                        }`}
+                                        style={{
+                                          width: `${
+                                            key === 'total_score'
+                                              ? (Object.entries(roastResult.build_evaluation.criteria_breakdown)
+                                                  .reduce((sum, [k, v]) => 
+                                                    k !== 'total_score' ? sum + Number(v) : sum
+                                                  , 0) / 25) * 100
+                                              : (Number(value) / 5) * 100
+                                          }%`
+                                        }}
+                                      ></div>
+                                    </div>
+                                  </div>
+                                )
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="max-w-[600px] mx-auto w-full">
+                    <div className="flex-grow bg-[#1e293b] rounded-2xl p-6">
+                      <h4 className="text-base sm:text-lg font-semibold text-slate-100 mb-3 sm:mb-4 flex items-center gap-2">
+                        <svg className="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                        Detailed Feedback
+                      </h4>
+                      <div className="prose prose-invert max-w-none">
+                        <p className="text-sm sm:text-base text-slate-300 leading-relaxed whitespace-pre-line">
+                          {roastResult.build_evaluation.detailed_feedback}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
+            </>
           ) : (
             <div className="text-center py-12">
               {loading && (
