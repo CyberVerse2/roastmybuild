@@ -191,7 +191,7 @@ export default function Home() {
                             </h4>
                             <div className="space-y-4">
                               {Object.entries(roastResult.build_evaluation.criteria_breakdown).map(
-                                ([key, value], index) => (
+                                ([key, value]) => (
                                   <div
                                     key={key}
                                     className="group"
