@@ -19,6 +19,7 @@ interface RoastResult {
 export default function Home() {
   const [roastResult, setRoastResult] = useState<RoastResult | null>(null);
   const [loading, setLoading] = useState(false);
+  const [isDownloaded, setIsDownloaded] = useState(false)
   const resultRef = useRef<HTMLDivElement>(null);
 
   const downloadAsImage = async () => {
@@ -79,6 +80,7 @@ export default function Home() {
         />
         <button
           onClick={() => {
+            setIsDownloaded(true)
             const input = document.getElementById('castUrl') as HTMLInputElement;
             if (input.value) {
               const button = document.querySelector('button');
@@ -234,6 +236,9 @@ export default function Home() {
                             </div>
                           </div>
                         </div>
+                      <div className={`${isDownloaded ? '': 'hidden'} text-center text-sm text-slate-400 py-3 border-t border-slate-700/50`}>
+                        Check yours at roastmybuild.vercel.app
+                      </div>
                       </div>
                     </div>
                   </div>

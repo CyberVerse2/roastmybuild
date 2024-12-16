@@ -69,7 +69,7 @@ Example roast: "Ah yes, nothing says 'blockchain innovation' like an AI-generate
       {
         text: `Clarity of Base Integration (20%): (1-5)
         For technical builds: How well does it integrate with Base blockchain? (5=Deep integration; 1=No integration)
-        For non-technical builds: How relevant and valuable is it to the Base ecosystem? (5=Highly relevant and valuable; 1=No relevance)`
+        For non-technical builds: How relevant and valuable is it to the Base ecosystem as a non-technical build? (5=Highly relevant and valuable; 1=No relevance)`
       },
       {
         text: `Technical Execution/Quality of Work (25%): (1-5)
